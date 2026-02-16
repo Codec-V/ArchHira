@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --royal: #1e3a8a;
+  --royal-light: #2563eb;
+  --white: #ffffff;
+  --soft-red: #dc2626;
+}
+
+body {
+  @apply antialiased text-gray-900 bg-gray-50;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  .btn-primary {
+    @apply bg-royal hover:bg-royal-light text-white font-medium py-2.5 px-5 rounded-lg
+           transition-all duration-200 hover:scale-[1.02] active:scale-[0.98];
+  }
+  .btn-danger {
+    @apply bg-soft-red hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-lg
+           transition-all duration-200 hover:scale-[1.02] active:scale-[0.98];
+  }
+}
