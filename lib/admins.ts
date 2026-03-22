@@ -92,3 +92,14 @@ export async function addAdminBySuperAdmin(
   await coll.insertOne({ ...admin });
   return { success: true };
 }
+
+export async function isSuperAdminEmail(email: string | null | undefined): Promise<boolean> {
+  if (!email) return false;
+  if (!isMongoConfigured()) return false;
+  const coll = await getAdminsColl();
+  const doc = await coll.findOne({
+    email: email.trim().toLowerCase(),
+    isSuperAdmin: true,
+  });
+  return Boolean(doc);
+}

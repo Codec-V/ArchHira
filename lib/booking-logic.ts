@@ -3,7 +3,13 @@
  */
 
 import { Booking, BookingType, Slot, RequestStatus } from "@/types";
-import { addDays, isBefore, parseISO, startOfDay } from "date-fns";
+import {
+  addDays,
+  eachDayOfInterval,
+  isBefore,
+  parseISO,
+  startOfDay,
+} from "date-fns";
 
 /** Minimum days from today for admin to approve a request */
 export const MIN_DAYS_FOR_APPROVAL = 7;
@@ -21,6 +27,15 @@ export function getApprovedBookings(
     if (b.type !== type || b.status !== RequestStatus.APPROVED) return false;
     if (date && b.date !== date) return false;
     return true;
+  });
+}
+
+// Add to booking-logic.ts
+export function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short', 
+    year: 'numeric'
   });
 }
 
@@ -71,13 +86,66 @@ export function getAvailableHallSlots(
 }
 
 /**
- * Guest House: only Full Day. A date is available if there is no approved Full Day booking.
+ * Guest House room logic
+ * ----------------------
+ * Guest House has 3 rooms total. Each booking reserves `roomsRequested` rooms
+ * for every night between expectedArrival and expectedDeparture (exclusive of
+ * the departure day). Legacy bookings without timing/roomsRequested are treated
+ * as 1 room for their single `date`.
  */
-export function isGuestHouseDateAvailable(
+
+const GUEST_HOUSE_TOTAL_ROOMS = 3;
+
+function getGuestHouseStayDates(b: Booking): string[] {
+  if (b.expectedArrival && b.expectedDeparture) {
+    const start = startOfDay(parseISO(b.expectedArrival));
+    const endExcl = addDays(startOfDay(parseISO(b.expectedDeparture)), -1);
+    if (isBefore(endExcl, start)) return [];
+    const days = eachDayOfInterval({ start, end: endExcl });
+    return days.map((d) => d.toISOString().slice(0, 10));
+  }
+  // Legacy: single-day stay on `date`
+  return [b.date];
+}
+
+export function getGuestHouseRoomsBookedForDate(
   approvedGuestHouseBookings: Booking[],
   date: string
+): number {
+  let booked = 0;
+  for (const b of approvedGuestHouseBookings) {
+    const dates = getGuestHouseStayDates(b);
+    if (dates.includes(date)) {
+      booked += b.roomsRequested ?? 1;
+    }
+  }
+  return booked;
+}
+
+export function getGuestHouseRoomsLeftForDate(
+  approvedGuestHouseBookings: Booking[],
+  date: string
+): number {
+  const used = getGuestHouseRoomsBookedForDate(approvedGuestHouseBookings, date);
+  return Math.max(0, GUEST_HOUSE_TOTAL_ROOMS - used);
+}
+
+export function isGuestHouseRangeAvailable(
+  approvedGuestHouseBookings: Booking[],
+  arrivalDate: string,
+  departureDate: string,
+  roomsRequested: number
 ): boolean {
-  return !approvedGuestHouseBookings.some((b) => b.date === date);
+  const start = startOfDay(parseISO(arrivalDate));
+  const endExcl = addDays(startOfDay(parseISO(departureDate)), -1);
+  if (isBefore(endExcl, start)) return false;
+  const intervalDays = eachDayOfInterval({ start, end: endExcl });
+  for (const d of intervalDays) {
+    const dateStr = d.toISOString().slice(0, 10);
+    const left = getGuestHouseRoomsLeftForDate(approvedGuestHouseBookings, dateStr);
+    if (left < roomsRequested) return false;
+  }
+  return true;
 }
 
 /**
@@ -98,9 +166,8 @@ export function getGuestHouseDateAvailability(
   approvedGuestHouseBookings: Booking[],
   date: string
 ): "available" | "booked" {
-  return isGuestHouseDateAvailable(approvedGuestHouseBookings, date)
-    ? "available"
-    : "booked";
+  const left = getGuestHouseRoomsLeftForDate(approvedGuestHouseBookings, date);
+  return left > 0 ? "available" : "booked";
 }
 
 /**
@@ -124,9 +191,11 @@ export function isSlotAllowed(
   if (type === BookingType.GUEST_HOUSE) {
     return slot === Slot.FULL_DAY;
   }
-  if (type === BookingType.HIRA_HALL && hallDayState) {
+  const isHallType =
+    type === BookingType.HIRA_HALL || type === BookingType.ARCHITECTURE_HALL;
+  if (isHallType && hallDayState) {
     const available = getAvailableHallSlots(hallDayState);
     return available.includes(slot);
   }
-  return type === BookingType.HIRA_HALL;
+  return isHallType;
 }

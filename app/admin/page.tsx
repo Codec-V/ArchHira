@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { adminLoginSchema, type AdminLoginInput } from "@/lib/validations";
-
+import { useAutoLogout } from "@/app/hooks/useAutoLogout";
+import Image from "next/image";
 export default function AdminLoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +19,31 @@ export default function AdminLoginPage() {
   } = useForm<AdminLoginInput>({
     resolver: zodResolver(adminLoginSchema),
   });
+ const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+useAutoLogout();
+  // ✅ FIXED: Proper auth check
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/me", {
+          credentials: "include", // Include cookies
+        });
+        
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          router.push("/");
+        }
+      } catch (error) {
+        router.push("/");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const onSubmit = async (data: AdminLoginInput) => {
     setError(null);
@@ -38,10 +64,22 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
+     <>
+                <div className="fixed inset-0 w-screen h-screen -z-20 overflow-hidden">
+                <Image
+                  src="/NIT-Raipur-Aerial-view.png"
+                  alt="NIT Raipur Campus"
+                  fill
+                  sizes="100vw"
+                  className="object-cover brightness-75"
+                  priority
+                />
+              </div>
+              <div className="fixed inset-0 bg-gradient-to-r from-slate-900/50 via-slate-800/30 to-slate-900/50 -z-10"></div>
+                <main className="min-h-screen w-full relative z-10 flex items-center justify-center">
       <div className="w-full max-w-sm glass rounded-2xl p-8 shadow-xl">
         <Link
-          href="/"
+          href="/dashboard"
           className="inline-flex items-center gap-2 text-royal font-medium mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Home
@@ -88,5 +126,6 @@ export default function AdminLoginPage() {
         </form>
       </div>
     </main>
+    </>
   );
 }
