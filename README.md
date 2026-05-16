@@ -1,167 +1,65 @@
----
+# ArchHira
 
-## 🏷️ Finding Issues to Contribute
-
-### Labels Guide
-
-Look for these GitHub issue labels to find work:
-
-**Difficulty Levels:**
-- 🟢 `good-first-issue` — Perfect for junior devs and first-time contributors
-- 🟡 `help-wanted` — Needs core team input
-- 🔴 `p0-critical` — High priority, urgent fixes
-
-**By Category:**
-- `backend` — API routes, MongoDB schemas, Server Actions
-- `frontend` — Next.js UI, Tailwind, Calendar logic
-- `feature` — New facilities (e.g., Golden Tower)
+**The modern booking engine for Hira Hall and Campus Guest Houses — A unified platform with real-time conflict validation and automated admin workflows.**
 
 ---
 
-## 🛠️ Tech Stack
+## 📖 About
 
-- **Frontend:** [Next.js 15](https://nextjs.org/) (App Router), React, [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components:** [Lucide React](https://lucide.dev/), [react-day-picker](https://react-day-picker.js.org/)
-- **State & Validation:** [Zod](https://zod.dev/), [react-hook-form](https://react-hook-form.com/)
-- **Backend/API:** Next.js Route Handlers (POST/GET architecture)
-- **Database:** [MongoDB](https://www.mongodb.com/) (with in-memory fallback)
-
----
-
-## 🏗️ Architecture Highlights
-
-### Real-Time Availability Engine
-The `booking-calendar.tsx` dynamically calculates available states by fetching confirmed bookings. It utilizes a `date-fns` integration to block out slots based on the `booking-logic.ts` ruleset (e.g., a First Half booking instantly turns the day 'Yellow' and disables the 'Full Day' selection).
-
-### Request Architecture
-To maintain high performance and prevent UI frame/state clearing issues, client-server communication strictly utilizes standard asynchronous POST and GET requests instead of persistent WebSocket connections. 
-
-### Admin Rules Pipeline
-The system hardcodes operational policies into the `api/bookings/[id]` route. Specifically, the `canApproveByDate` utility enforces the 7-day minimum buffer, actively preventing admins from approving last-minute requests.
-
----
-
-## 🤝 Contributing
-
-We welcome contributions from the TCP team and the wider campus developer community! 
-
-### How to Contribute
-
-1. **Fork & Clone**
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/ArchHira.git](https://github.com/YOUR_USERNAME/ArchHira.git)
-   cd ArchHira
-Create a Feature Branch
-
-Bash
-git checkout -b feature/golden-tower-integration
-Make Your Changes
-
-Reuse existing schemas where possible.
-
-Maintain the Tailwind design language.
-
-Commit & Push
-
-Bash
-git commit -m "feat: add golden tower facility to booking options"
-git push origin feature/golden-tower-integration
-Create a Pull Request via the GitHub UI.
-
-🎯 Roadmap
-Phase 1 & 2: Core Engine ✅
-[x] Initial Next.js structure
-
-[x] Calendar and conflict logic
-
-[x] Guest house and Hira Hall forms
-
-[x] API Routes (POST/GET)
-
-Phase 3: Admin Automation ✅
-[x] Super admin seeding
-
-[x] Dashboard with date filters
-
-[x] 7-day approval rule engine
-
-[x] Automated Nodemailer responses
-
-Phase 4: Facility Expansion 🟡
-[ ] Add "Golden Tower" database schema
-
-[ ] Implement UI toggle for facility selection
-
-[ ] Extend real-time calendar logic for Golden Tower
-
-[ ] E2E testing for multi-facility booking flows
-
-The modern booking engine for Hira Hall and Campus Guest Houses — A unified platform with real-time conflict validation and automated admin workflows.
-
-📖 About
 ArchHira is a streamlined campus management platform built to handle the complex booking logic of institutional facilities.
 
 Instead of relying on manual ledgers and fragmented communication, ArchHira provides a centralized booking infrastructure, handling real-time availability, strict booking rules (half-day vs. full-day conflicts), and an automated administrative approval pipeline.
 
-Key Problems Solved
-Booking Conflicts — Automated slot validation prevents double-booking of Hira Hall and Guest Houses.
+### Key Problems Solved
+- **Booking Conflicts** — Automated slot validation prevents double-booking of Hira Hall and Guest Houses.
+- **Manual Approvals** — System enforces a strict 7-day minimum lead time for admin approvals and automates acceptance/rejection emails.
+- **Availability Tracking** — Real-time, color-coded calendar interface replacing static spreadsheets.
+- **Data Standardization** — Enforced collection of vital data, including mandatory visitor postal details.
 
-Manual Approvals — System enforces a strict 7-day minimum lead time for admin approvals and automates acceptance/rejection emails.
+### Who Is This For?
+- **Campus Staff & Faculty** — Streamlined interface for requesting facility access.
+- **Institute Administrators** — Dedicated dashboard for reviewing, filtering, and managing requests.
+- **TCP Developers** — Clean, modular Next.js architecture tailored for easy contributions and scaling.
 
-Availability Tracking — Real-time, color-coded calendar interface replacing static spreadsheets.
+---
 
-Data Standardization — Enforced collection of vital data, including mandatory visitor postal details.
+## ✨ Features
 
-Who Is This For?
-Campus Staff & Faculty — Streamlined interface for requesting facility access.
+### Phase 1: Foundation ✅
+- ✅ **Next.js App Router** — Modern, server-rendered React architecture.
+- ✅ **Global Storage** — MongoDB integration with a seamless in-memory fallback.
+- ✅ **Schema Validation** — Strict request parsing using Zod and react-hook-form.
 
-Institute Administrators — Dedicated dashboard for reviewing, filtering, and managing requests.
+### Phase 2: Booking Engine ✅
+- ✅ **Real-Time Calendar** — Dynamic availability UI (Green: Available, Yellow: Partially Booked, Red: Full).
+- ✅ **Advanced Conflict Logic** — Hira Hall (First Half / Second Half / Full Day) slot collision prevention.
+- ✅ **Guest House Flow** — Full-day booking logic with mandatory visitor postal details integration.
+- ✅ **Optimized Networking** — Standard POST/GET API request architecture for high-performance state syncing.
 
-TCP Developers — Clean, modular Next.js architecture tailored for easy contributions and scaling.
+### Phase 3: Admin & Operations ✅
+- ✅ **RBAC (Role-Based Access Control)** — Super-admin seeding and standard admin provisioning.
+- ✅ **Dashboard Filters** — Separate, filterable data tables for Hira Hall and Guest House requests.
+- ✅ **Rule Engine** — Admins restricted to approving requests only if the date is ≥ 7 days from today.
+- ✅ **Automated Comms** — Nodemailer integration for automated acceptance and rejection emails.
 
-✨ Features
-Phase 1: Foundation ✅
-✅ Next.js App Router — Modern, server-rendered React architecture.
+### Phase 4: Facility Expansion (Current) 🟡
+- 🟡 **Golden Tower Integration** — Extending the guest house schema to support the new Golden Tower facility.
+- 📋 **Multi-Facility Analytics** — Usage stats across all venues.
 
-✅ Global Storage — MongoDB integration with a seamless in-memory fallback.
+---
 
-✅ Schema Validation — Strict request parsing using Zod and react-hook-form.
+## 🚀 Quick Start
 
-Phase 2: Booking Engine ✅
-✅ Real-Time Calendar — Dynamic availability UI (Green: Available, Yellow: Partially Booked, Red: Full).
+### Prerequisites
+- Node.js v18.0.0 or higher
+- npm
+- Git
 
-✅ Advanced Conflict Logic — Hira Hall (First Half / Second Half / Full Day) slot collision prevention.
+### Installation
 
-✅ Guest House Flow — Full-day booking logic with mandatory visitor postal details integration.
-
-✅ Optimized Networking — Standard POST/GET API request architecture for high-performance state syncing.
-
-Phase 3: Admin & Operations ✅
-✅ RBAC (Role-Based Access Control) — Super-admin seeding and standard admin provisioning.
-
-✅ Dashboard Filters — Separate, filterable data tables for Hira Hall and Guest House requests.
-
-✅ Rule Engine — Admins restricted to approving requests only if the date is ≥ 7 days from today.
-
-✅ Automated Comms — Nodemailer integration for automated acceptance and rejection emails.
-
-Phase 4: Facility Expansion (Current) 🟡
-🟡 Golden Tower Integration — Extending the guest house schema to support the new Golden Tower facility.
-
-📋 Multi-Facility Analytics — Usage stats across all venues.
-
-🚀 Quick Start
-Prerequisites
-Node.js v18.0.0 or higher
-
-npm
-
-Git
-
-Installation
-Bash
+```bash
 # Clone the repository
-git clone [https://github.com/NITRR-Official/ArchHira](https://github.com/NITRR-Official/ArchHira)
+git clone [https://github.com/NITRR-Official/ArchHira.git](https://github.com/NITRR-Official/ArchHira.git)
 cd ArchHira
 
 # Install dependencies
@@ -219,26 +117,6 @@ lib/
   email.ts              # Notifications (Nodemailer)
 types/
   index.ts              # Booking, Slot, Status enums
-🏷️ Finding Issues to Contribute
-Labels Guide
-Look for these GitHub issue labels to find work:
-
-Difficulty Levels:
-
-🟢 good-first-issue — Perfect for junior devs and first-time contributors
-
-🟡 help-wanted — Needs core team input
-
-🔴 p0-critical — High priority, urgent fixes
-
-By Category:
-
-backend — API routes, MongoDB schemas, Server Actions
-
-frontend — Next.js UI, Tailwind, Calendar logic
-
-feature — New facilities (e.g., Golden Tower)
-
 🛠️ Tech Stack
 Frontend: Next.js 15 (App Router), React, Tailwind CSS
 
@@ -260,6 +138,26 @@ To maintain high performance and prevent UI frame/state clearing issues, client-
 Admin Rules Pipeline
 The system hardcodes operational policies into the api/bookings/[id] route. Specifically, the canApproveByDate utility enforces the 7-day minimum buffer, actively preventing admins from approving last-minute requests.
 
+🏷️ Finding Issues to Contribute
+Labels Guide
+Look for these GitHub issue labels to find work:
+
+Difficulty Levels:
+
+🟢 good-first-issue — Perfect for junior devs and first-time contributors
+
+🟡 help-wanted — Needs core team input
+
+🔴 p0-critical — High priority, urgent fixes
+
+By Category:
+
+backend — API routes, MongoDB schemas, Server Actions
+
+frontend — Next.js UI, Tailwind, Calendar logic
+
+feature — New facilities (e.g., Golden Tower)
+
 🤝 Contributing
 We welcome contributions from the TCP team and the wider campus developer community!
 
@@ -273,17 +171,17 @@ Create a Feature Branch
 
 Bash
 git checkout -b feature/golden-tower-integration
-Make Your Changes
 
-Reuse existing schemas where possible.
 
-Maintain the Tailwind design language.
+3. **Make Your Changes**
+   - Reuse existing schemas where possible.
+   - Maintain the Tailwind design language.
 
-Commit & Push
-
-Bash
-git commit -m "feat: add golden tower facility to booking options"
-git push origin feature/golden-tower-integration
+4. **Commit & Push**
+   ```bash
+   git commit -m "feat: add golden tower facility to booking options"
+   git push origin feature/golden-tower-integration
+   
 Create a Pull Request via the GitHub UI.
 
 🎯 Roadmap
