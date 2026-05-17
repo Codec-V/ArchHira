@@ -1,213 +1,200 @@
 # ArchHira
 
-**The modern booking engine for Hira Hall and Campus Guest Houses — A unified platform with real-time conflict validation and automated admin workflows.**
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
----
+The operating platform for **Architecture Department venue booking workflows** — designed to manage authentication, booking, approvals, and admin operations in one system.
 
 ## 📖 About
 
-ArchHira is a streamlined campus management platform built to handle the complex booking logic of institutional facilities.
+ArchHira is a Next.js-based booking and operations platform for:
 
-Instead of relying on manual ledgers and fragmented communication, ArchHira provides a centralized booking infrastructure, handling real-time availability, strict booking rules (half-day vs. full-day conflicts), and an automated administrative approval pipeline.
+- **Hira Hall** bookings
+- **Architecture Hall** bookings
+- **Guest House** bookings (date-range and room-capacity flow)
 
-### Key Problems Solved
-- **Booking Conflicts** — Automated slot validation prevents double-booking of Hira Hall and Guest Houses.
-- **Manual Approvals** — System enforces a strict 7-day minimum lead time for admin approvals and automates acceptance/rejection emails.
-- **Availability Tracking** — Real-time, color-coded calendar interface replacing static spreadsheets.
-- **Data Standardization** — Enforced collection of vital data, including mandatory visitor postal details.
+It replaces fragmented manual processes with a unified system including OTP-based auth, conflict-aware booking, admin approval workflows, and email notifications.
 
-### Who Is This For?
-- **Campus Staff & Faculty** — Streamlined interface for requesting facility access.
-- **Institute Administrators** — Dedicated dashboard for reviewing, filtering, and managing requests.
-- **TCP Developers** — Clean, modular Next.js architecture tailored for easy contributions and scaling.
+## Key Problems Solved
 
----
+- **Scheduling conflicts** — Slot/date conflict checks for halls and guest-house capacity logic
+- **Manual approval overhead** — Structured admin dashboard for review and status updates
+- **Authentication friction** — OTP-assisted login and password reset flows
+- **Data inconsistency** — Centralized booking state with MongoDB persistence option
+- **Operational visibility gap** — Dedicated admin views and booking detail workflows
+
+## Who Is This For?
+
+- **Faculty/Staff/Student organizers** requesting halls and guest-house stays
+- **Department admins** managing approvals and rejections
+- **System maintainers** extending booking, auth, and workflow capabilities
 
 ## ✨ Features
 
-### Phase 1: Foundation ✅
-- ✅ **Next.js App Router** — Modern, server-rendered React architecture.
-- ✅ **Global Storage** — MongoDB integration with a seamless in-memory fallback.
-- ✅ **Schema Validation** — Strict request parsing using Zod and react-hook-form.
+### Authentication & Session Layer ✅
 
-### Phase 2: Booking Engine ✅
-- ✅ **Real-Time Calendar** — Dynamic availability UI (Green: Available, Yellow: Partially Booked, Red: Full).
-- ✅ **Advanced Conflict Logic** — Hira Hall (First Half / Second Half / Full Day) slot collision prevention.
-- ✅ **Guest House Flow** — Full-day booking logic with mandatory visitor postal details integration.
-- ✅ **Optimized Networking** — Standard POST/GET API request architecture for high-performance state syncing.
+- User registration with hashed passwords
+- OTP-based login verification
+- OTP resend and password-reset via OTP
+- Session check (`/api/auth/me`) and logout flow
 
-### Phase 3: Admin & Operations ✅
-- ✅ **RBAC (Role-Based Access Control)** — Super-admin seeding and standard admin provisioning.
-- ✅ **Dashboard Filters** — Separate, filterable data tables for Hira Hall and Guest House requests.
-- ✅ **Rule Engine** — Admins restricted to approving requests only if the date is ≥ 7 days from today.
-- ✅ **Automated Comms** — Nodemailer integration for automated acceptance and rejection emails.
+### Booking Engine ✅
 
-### Phase 4: Facility Expansion (Current) 🟡
-- 🟡 **Golden Tower Integration** — Extending the guest house schema to support the new Golden Tower facility.
-- 📋 **Multi-Facility Analytics** — Usage stats across all venues.
+- Multi-venue support: `HIRA_HALL`, `ARCHITECTURE_HALL`, `GUEST_HOUSE`
+- Slot system for halls: `FIRST_HALF`, `SECOND_HALF`, `FULL_DAY`
+- Guest-house date-range and room availability checks
+- Booking lifecycle: `PENDING`, `APPROVED`, `REJECTED`
+- Approval date policy enforcement (minimum 7-day lead time)
 
----
+### Admin Operations ✅
+
+- Admin login endpoint and admin dashboard
+- Super-admin-only add-admin capability
+- First super admin seeded via environment variables
+- Approval/rejection email notifications
+
+### Testing & Quality 🟡
+
+- Validation scripts available (`npm run lint`, `npm run build`)
+- Detailed testing strategy and status documentation present
+- Automated unit/integration test suites documented but not yet implemented
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js v18.0.0 or higher
+
+- Node.js 18+
 - npm
-- Git
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone [https://github.com/NITRR-Official/ArchHira.git](https://github.com/NITRR-Official/ArchHira.git)
-cd ArchHira
-
-# Install dependencies
 npm install
-Configuration
-ArchHira can run with in-memory storage for rapid UI development, but requires MongoDB for full admin features and data persistence.
+```
 
-Create a .env.local in the project root:
+### Configure Environment
 
-Code snippet
-# MongoDB (global storage)
+Create `.env.local` from `.env.example`:
+
+```env
+# MongoDB
 MONGODB_URI=mongodb://localhost:27017
-# Or Atlas: mongodb+srv://user:pass@cluster.mongodb.net/
-MONGODB_DB_NAME=hira-hall
+# MONGODB_DB_NAME=hira-hall
 
-# Super Admin Seeding
-ADMIN_EMAIL=admin2@gmail.com
-ADMIN_PASSWORD=admin123
+# First admin (super admin)
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=your-secure-password
 
-# SMTP Email Configuration (for acceptance/rejection notifications)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-Running the Project
-Bash
+# Optional SMTP
+# SMTP_HOST=smtp.gmail.com
+# SMTP_PORT=587
+# SMTP_USER=your@gmail.com
+# SMTP_PASS=your-app-password
+# SMTP_FROM=noreply@yourdomain.com
+```
+
+### Run the Project
+
+```bash
 npm run dev
-Public Booking Interface: http://localhost:3000
+```
 
-Admin Dashboard: http://localhost:3000/admin
+Open: [http://localhost:3000](http://localhost:3000)
 
-📚 Project Structure
-ArchHira follows a structured App Router pattern:
+## 🔐 Access Model
 
-Plaintext
+- Public auth endpoints: register/login/verify/resend/forgot/reset
+- Authenticated user required: booking APIs, `/api/auth/me`, `/api/auth/logout`
+- MongoDB required: admin APIs (`/api/admin/login`, `/api/admin/add`)
+- Super-admin restriction: only super admin can add additional admins
+
+## 🛠️ Tech Stack
+
+- **Frontend/Server**: Next.js 15 (App Router), React 19, TypeScript
+- **Validation & Forms**: Zod, react-hook-form, @hookform/resolvers
+- **UI/Date**: Tailwind CSS, Lucide React, react-day-picker, date-fns
+- **Data**: MongoDB (with in-memory fallback for bookings where applicable)
+- **Email**: Nodemailer
+
+## 🏗️ Architecture Highlights
+
+### Layered Design
+
+- **API Layer**: App Router handlers under `app/api/**`
+- **Business Logic Layer**: conflict and rule enforcement in `lib/booking-logic.ts`
+- **Validation Layer**: shared Zod schemas in `lib/validations.ts`
+- **Persistence Layer**: MongoDB-backed auth/admin; bookings via store abstraction
+
+### Core Modules
+
+- **Auth Module** — OTP lifecycle, password reset, session flows
+- **Bookings Module** — create/list/update/delete + conflict checks
+- **Admin Module** — login + super-admin-controlled admin provisioning
+
+## 📁 Project Structure
+
+```text
 app/
-  page.tsx              # Landing (Glassmorphism facility selection)
-  book/hall/            # Hira Hall booking flow
-  book/guest-house/     # Guest House booking flow
-  admin/                # Admin login
-  admin/dashboard/      # Pending requests tables & management
-  api/bookings/         # GET all, POST new
-  api/bookings/[id]/    # PATCH approve/reject
-  api/admin/login/      # POST login (email + password)
-  api/admin/add/        # POST add admin (super admin only)
+  api/auth/*                  # Register/login/OTP/password reset/session/logout
+  api/bookings/route.ts       # List/create bookings
+  api/bookings/[id]/route.ts  # CRUD and status updates by ID
+  api/admin/login/route.ts    # Admin login
+  api/admin/add/route.ts      # Add admin (super admin only)
+  page.tsx                    # Auth entry
+  dashboard/page.tsx          # Main user dashboard
+  book/hall/page.tsx
+  book/architecture-hall/page.tsx
+  book/guest-house/page.tsx
+  admin/page.tsx
+  admin/dashboard/page.tsx
+  admin/booking/[id]/page.tsx
+
 components/
-  booking-calendar.tsx  # Calendar with availability states
-  booking-form.tsx      # Request form (Zod + RHF)
+  booking-calendar.tsx
+  booking-form.tsx
+  guest-house-booking-form.tsx
+  LogoutButton.tsx
+
 lib/
-  booking-logic.ts      # Slots, conflicts, canApproveByDate
-  validations.ts        # Zod schemas (incl. visitor postal details)
-  mongodb.ts            # MongoDB connection (cached)
-  store-server.ts       # Bookings store (MongoDB or in-memory)
-  admins.ts             # Admin CRUD, super-admin seed
-  email.ts              # Notifications (Nodemailer)
-types/
-  index.ts              # Booking, Slot, Status enums
-🛠️ Tech Stack
-Frontend: Next.js 15 (App Router), React, Tailwind CSS
+  auth.ts
+  admins.ts
+  booking-logic.ts
+  store-server.ts
+  mongodb.ts
+  validations.ts
+  email.ts
+```
 
-UI Components: Lucide React, react-day-picker
+## ✅ Validation Commands
 
-State & Validation: Zod, react-hook-form
+Run from repository root:
 
-Backend/API: Next.js Route Handlers (POST/GET architecture)
+```bash
+npm run lint
+npm run build
+```
 
-Database: MongoDB (with in-memory fallback)
+## 📚 Documentation
 
-🏗️ Architecture Highlights
-Real-Time Availability Engine
-The booking-calendar.tsx dynamically calculates available states by fetching confirmed bookings. It utilizes a date-fns integration to block out slots based on the booking-logic.ts ruleset (e.g., a First Half booking instantly turns the day 'Yellow' and disables the 'Full Day' selection).
+- [MongoDB Setup Guide](docs/MONGODB_SETUP.md)
+- [MongoDB Migration Guide](docs/MONGODB_MIGRATION.md)
+- [API Reference](docs/API_REFERENCE.md)
+- [Implementation Summary](docs/IMPLEMENTATION_SUMMARY.md)
+- [Testing Suite Documentation](docs/TESTING.md)
+- [Testing Status Report](docs/TEST_RESULTS.md)
 
-Request Architecture
-To maintain high performance and prevent UI frame/state clearing issues, client-server communication strictly utilizes standard asynchronous POST and GET requests instead of persistent WebSocket connections.
+## 🎯 Roadmap Snapshot
 
-Admin Rules Pipeline
-The system hardcodes operational policies into the api/bookings/[id] route. Specifically, the canApproveByDate utility enforces the 7-day minimum buffer, actively preventing admins from approving last-minute requests.
+- ✅ Authentication + OTP flows
+- ✅ Multi-venue booking APIs and UI
+- ✅ Admin dashboard and approval lifecycle
+- 🟡 Automated test suite implementation and CI hardening
+- 📋 Session hardening, rate-limiting, and operational observability improvements
 
-🏷️ Finding Issues to Contribute
-Labels Guide
-Look for these GitHub issue labels to find work:
+## 🤝 Contributing
 
-Difficulty Levels:
+Contributions are welcome. Please keep changes aligned with:
 
-🟢 good-first-issue — Perfect for junior devs and first-time contributors
-
-🟡 help-wanted — Needs core team input
-
-🔴 p0-critical — High priority, urgent fixes
-
-By Category:
-
-backend — API routes, MongoDB schemas, Server Actions
-
-frontend — Next.js UI, Tailwind, Calendar logic
-
-feature — New facilities (e.g., Golden Tower)
-
-🤝 Contributing
-We welcome contributions from the TCP team and the wider campus developer community!
-
-How to Contribute
-Fork & Clone
-
-Bash
-git clone [https://github.com/YOUR_USERNAME/ArchHira.git](https://github.com/YOUR_USERNAME/ArchHira.git)
-cd ArchHira
-Create a Feature Branch
-
-Bash
-git checkout -b feature/golden-tower-integration
-
-
-3. **Make Your Changes**
-   - Reuse existing schemas where possible.
-   - Maintain the Tailwind design language.
-
-4. **Commit & Push**
-   ```bash
-   git commit -m "feat: add golden tower facility to booking options"
-   git push origin feature/golden-tower-integration
-   
-Create a Pull Request via the GitHub UI.
-
-🎯 Roadmap
-Phase 1 & 2: Core Engine ✅
-[x] Initial Next.js structure
-
-[x] Calendar and conflict logic
-
-[x] Guest house and Hira Hall forms
-
-[x] API Routes (POST/GET)
-
-Phase 3: Admin Automation ✅
-[x] Super admin seeding
-
-[x] Dashboard with date filters
-
-[x] 7-day approval rule engine
-
-[x] Automated Nodemailer responses
-
-Phase 4: Facility Expansion 🟡
-[ ] Add "Golden Tower" database schema
-
-[ ] Implement UI toggle for facility selection
-
-[ ] Extend real-time calendar logic for Golden Tower
-
-[ ] E2E testing for multi-facility booking flows
+- Existing module boundaries (`auth`, `bookings`, `admin`)
+- Shared validation and typing patterns
+- Root validation checks (`npm run lint`, `npm run build`)
+- Documentation updates for behavior changes
