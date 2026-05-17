@@ -80,4 +80,4 @@ For answers to common questions about this code of conduct, see the FAQ at https
 
 ---
 
-**Thank you for helping make CampusOS a welcoming community for everyone!** 🌟
+**Thank you for helping make ArchHira everyone!** 🌟
