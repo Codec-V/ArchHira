@@ -388,7 +388,7 @@ export default function LoginPage() {
                                                               </button>
                                                               </div>
                                                               <p className="text-center text-sm text-slate-600">
-                                                                Didn't receive? Check spam folder
+                                                                Didn&apos;t receive? Check spam folder
                                                                 </p>
                                                                 <p className="text-center">
                                                                   <button onClick={() => setStep("login")} className="text-slate-600 hover:text-slate-800 font-semibold">
