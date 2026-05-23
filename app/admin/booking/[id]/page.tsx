@@ -10,8 +10,11 @@ import type { Booking } from "@/types";
 export default async function BookingDetailsPage({ 
   params 
 }: { 
-  params: { id: string } 
+  params: Promise<{ id: string }>
 }) {
+  // ✅ AWAIT params (Next.js 15 change)
+  const { id } = await params;
+
   // ✅ SERVER-SIDE AUTH CHECK (NO "use client"!)
   // const session = await getServerSession();
   // console.log("Session:", session);
@@ -20,7 +23,7 @@ export default async function BookingDetailsPage({
   // }
 
   // ✅ SERVER-SIDE DATA FETCH
-  const booking = await getBookingById(params.id);
+  const booking = await getBookingById(id);
   if (!booking) {
     notFound();
   }
