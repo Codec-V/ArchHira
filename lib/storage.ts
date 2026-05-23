@@ -37,7 +37,7 @@ export function addBooking(booking: Omit<Booking, "id" | "createdAt" | "status">
   const newBooking: Booking = {
     ...booking,
     id: crypto.randomUUID(),
-    status: RequestStatus.PENDING_FACULTY,
+    status: RequestStatus.PENDING,
     createdAt: new Date().toISOString(),
   };
   if (typeof window !== "undefined") {
