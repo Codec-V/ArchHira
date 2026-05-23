@@ -1,16 +1,22 @@
 /**
- * MongoDB connection for Next.js. Uses cached client for serverless.
+ * MongoDB connection for Next.js. Uses cached client for serverless (Vercel).
  */
 
-import { MongoClient, Db } from "mongodb";
+import { MongoClient, Db, MongoClientOptions } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB_NAME || "hira-hall";
 const collectionName = "bookings";
 
+const clientOptions: MongoClientOptions = {
+  // Fail fast instead of hanging until Vercel's ~30s gateway timeout
+  serverSelectionTimeoutMS: 10_000,
+  connectTimeoutMS: 10_000,
+};
+
 if (!uri) {
   console.warn(
-    "MONGODB_URI is not set. Add it to .env.local to use MongoDB; otherwise the app may fall back to in-memory store."
+    "MONGODB_URI is not set. Add it to .env.local (or Vercel env vars) to use MongoDB."
   );
 }
 
@@ -18,24 +24,20 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-let clientPromise: Promise<MongoClient> | undefined;
-
-if (uri) {
-  if (process.env.NODE_ENV === "development") {
-    if (!global._mongoClientPromise) {
-      global._mongoClientPromise = new MongoClient(uri).connect();
-    }
-    clientPromise = global._mongoClientPromise;
-  } else {
-    clientPromise = new MongoClient(uri).connect();
+function getClientPromise(): Promise<MongoClient> {
+  if (!uri) {
+    throw new Error(
+      "MongoDB is not configured. Set MONGODB_URI in environment variables."
+    );
   }
+  if (!global._mongoClientPromise) {
+    global._mongoClientPromise = new MongoClient(uri, clientOptions).connect();
+  }
+  return global._mongoClientPromise;
 }
 
 export async function getDb(): Promise<Db> {
-  if (!clientPromise) {
-    throw new Error("MongoDB is not configured. Set MONGODB_URI in .env.local");
-  }
-  const client = await clientPromise;
+  const client = await getClientPromise();
   return client.db(dbName);
 }
 
