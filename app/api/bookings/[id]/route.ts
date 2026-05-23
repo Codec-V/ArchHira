@@ -15,15 +15,15 @@ import { findUserByEmail } from "@/lib/auth";
 async function requireAuth(request: NextRequest) {
   const token = request.cookies.get("authToken")?.value;
   if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return null; // Return null instead of NextResponse
   }
 
   const user = await findUserByEmail(token);
   if (!user || !user.isVerified) {
-    return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+    return null; // Return null instead of NextResponse
   }
 
-  return { user, ok: true };
+  return user; // Return user only
 }
 
 export async function GET(
@@ -32,8 +32,10 @@ export async function GET(
 ) {
   try {
     // ✅ AUTH CHECK
-    const auth = await requireAuth(request);
-    if (!auth.ok) return auth;
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { id } = await params;
     
@@ -57,8 +59,10 @@ export async function GET(
 export async function POST(request: NextRequest) {
   try {
     // ✅ AUTH CHECK
-    const auth = await requireAuth(request);
-    if (!auth.ok) return auth;
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const body = await request.json();
     
@@ -93,8 +97,10 @@ export async function PATCH(
 ) {
   try {
     // ✅ AUTH CHECK
-    const auth = await requireAuth(request);
-    if (!auth.ok) return auth;
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { id } = await params;
     const body = await request.json();
@@ -147,8 +153,10 @@ export async function PUT(
 ) {
   try {
     // ✅ AUTH CHECK
-    const auth = await requireAuth(request);
-    if (!auth.ok) return auth;
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { id } = await params;
     const body = await request.json();
@@ -173,8 +181,10 @@ export async function DELETE(
 ) {
   try {
     // ✅ AUTH CHECK
-    const auth = await requireAuth(request);
-    if (!auth.ok) return auth;
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { id } = await params;
     
